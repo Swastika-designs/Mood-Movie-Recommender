@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Mood-Based Movie Recommender</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<style>
+    body {
+        font-family: 'Poppins', sans-serif;
+        background-color: #550527;
+        color: #FBF7F4;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        min-height: 100vh;
+        margin: 0;
+        padding: 40px 20px;
+    }
+
+    h1 {
+        margin-bottom: 10px;
+        color: #E8998D;
+        text-align: center;
+        font-weight: 600;
+        font-size: 2em;
+    }
+
+    .info {
+        margin-bottom: 30px;
+        font-size: 14px;
+        color: #EED2CC;
+        text-align: center;
+    }
+
+    .selector {
+        margin-bottom: 40px;
+        display: flex;
+        gap: 20px;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    select, button {
+        padding: 12px 20px;
+        font-size: 14px;
+        border-radius: 10px;
+        border: none;
+        outline: none;
+        cursor: pointer;
+        background: #EED2CC;
+        color: #550527;
+        transition: all 0.2s;
+        box-shadow: 0 0 5px #E8998D;
+    }
+
+    select:hover, button:hover {
+        box-shadow: 0 0 15px #E8998D;
+        transform: scale(1.05);
+    }
+
+    button {
+        font-weight: 600;
+        text-transform: uppercase;
+    }
+
+    #movie-container {
+        position: relative;
+        width: 300px;
+        height: 220px;
+    }
+
+    .swipe-card {
+        position: absolute;
+        width: 100%;
+        height: 200px;
+        background: #EED2CC;
+        color: #550527;
+        border-radius: 30px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+        box-shadow: 0 0 15px #E8998D;
+        cursor: grab;
+        user-select: none;
+        transition: transform 0.3s;
+        text-align: center;
+        padding: 10px;
+    }
+
+    #liked-movies {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 15px;
+        justify-content: center;
+        margin-top: 30px;
+    }
+
+    .liked-card {
+        padding: 10px 25px;
+        background: #E8998D;
+        border-radius: 50px;
+        color: #550527;
+        font-weight: 600;
+        text-align: center;
+        min-width: 100px;
+    }
+</style>
+</head>
+<body>
+
+<h1>Mood-Based Movie Recommender</h1>
+<div class="info">Swipe right = Good recommendation | Swipe left = Bad recommendation</div>
+
+<div class="selector">
+    <div>
+        <label>Mood:</label>
+        <select id="mood">
+            <option value="Happy">Happy</option>
+            <option value="Sad">Sad</option>
+            <option value="Relaxed">Relaxed</option>
+            <option value="Energetic">Energetic</option>
+        </select>
+    </div>
+    <div>
+        <label>Activity:</label>
+        <select id="activity">
+            <option value="Studying">Studying</option>
+            <option value="Relaxing">Relaxing</option>
+            <option value="Working Out">Working Out</option>
+            <option value="Partying">Partying</option>
+        </select>
+    </div>
+    <div>
+        <button onclick="getRecommendations()">Get Recommendations</button>
+    </div>
+</div>
+
+<div id="movie-container"></div>
+<div id="liked-movies"></div>
+
+<script>
+let movies = [];
+let likedMovies = [];
+
+async function getRecommendations() {
+    const mood = document.getElementById('mood').value;
+    const activity = document.getElementById('activity').value;
+    const response = await fetch(`/recommend?mood=${mood}&activity=${activity}`);
+    const data = await response.json();
+
+    movies = data.recommended_movies || [];
+    likedMovies = [];
+    document.getElementById('liked-movies').innerHTML = '';
+    renderCards();
+}
+
+function renderCards() {
+    const container = document.getElementById('movie-container');
+    container.innerHTML = '';
+
+    if (movies.length === 0) {
+        container.innerHTML = '<div class="swipe-card">No recommendations found.</div>';
+        return;
+    }
+
+    movies.reverse().forEach((movie, index) => {
+        const card = document.createElement('div');
+        card.className = 'swipe-card';
+        card.textContent = movie;
+        card.style.zIndex = index;
+        container.appendChild(card);
+
+        let startX, currentX, offsetX;
+
+        card.addEventListener('mousedown', e => {
+            startX = e.clientX;
+            card.style.transition = 'none';
+        });
+
+        card.addEventListener('mousemove', e => {
+            if (startX !== undefined) {
+                currentX = e.clientX;
+                offsetX = currentX - startX;
+                card.style.transform = `translateX(${offsetX}px) rotate(${offsetX/10}deg)`;
+            }
+        });
+
+        card.addEventListener('mouseup', e => {
+            if (offsetX > 100) {
+                card.style.transform = 'translateX(1000px) rotate(30deg)';
+                likedMovies.push(movie);
+                sendFeedback(movie, 'like');
+                card.remove();
+                showLikedMovies();
+            } else if (offsetX < -100) {
+                card.style.transform = 'translateX(-1000px) rotate(-30deg)';
+                sendFeedback(movie, 'dislike');
+                card.remove();
+            } else {
+                card.style.transform = 'translateX(0px) rotate(0deg)';
+            }
+            startX = undefined;
+            currentX = undefined;
+            offsetX = undefined;
+        });
+
+        card.addEventListener('mouseleave', e => {
+            if (startX !== undefined) {
+                card.style.transform = 'translateX(0px) rotate(0deg)';
+                startX = undefined;
+            }
+        });
+    });
+}
+
+function showLikedMovies() {
+    const likedDiv = document.getElementById('liked-movies');
+    likedDiv.innerHTML = '';
+    likedMovies.forEach(movie => {
+        const div = document.createElement('div');
+        div.className = 'liked-card';
+        div.textContent = movie;
+        likedDiv.appendChild(div);
+    });
+}
+
+// Feedback function (ready for backend)
+function sendFeedback(movie, type) {
+    fetch('/feedback', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ movie: movie, feedback: type })
+    }).then(res => res.json())
+      .then(data => console.log(data.message));
+}
+</script>
+
+</body>
+</html>
