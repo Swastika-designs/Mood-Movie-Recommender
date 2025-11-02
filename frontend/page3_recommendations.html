@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>3. Recommendations View</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<style>
+    body {
+        font-family: 'Poppins', sans-serif;
+        background-color: #1a001a; /* Very dark purple/black */
+        color: #FBF7F4;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        min-height: 100vh;
+        margin: 0;
+        padding: 40px 20px;
+        overflow: hidden;
+    }
+    h1 {
+        font-family: 'Cinzel', serif;
+        margin-bottom: 20px;
+        color: #FFD700; /* Gold */
+        text-align: center;
+        font-weight: 700;
+        font-size: 2.2em;
+        text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+    }
+    .current-context {
+        font-size: 1.1em;
+        color: #EED2CC;
+        margin-bottom: 40px;
+        text-shadow: 0 0 5px rgba(238, 210, 204, 0.3);
+    }
+    .nav-buttons {
+        margin-bottom: 30px;
+        display: flex;
+        gap: 20px;
+    }
+    .nav-buttons button {
+        padding: 10px 20px;
+        font-size: 0.9em;
+        font-weight: 600;
+        border-radius: 30px;
+        border: 1px solid #EED2CC;
+        background: none;
+        color: #EED2CC;
+        cursor: pointer;
+        transition: all 0.3s;
+        text-shadow: 0 0 5px rgba(238, 210, 204, 0.3);
+    }
+    .nav-buttons button:hover {
+        background: #EED2CC;
+        color: #1a001a;
+        box-shadow: 0 0 15px rgba(238, 210, 204, 0.6);
+    }
+
+    #movie-container {
+        position: relative;
+        width: 350px; /* Wider card */
+        height: 250px; /* Taller card */
+        margin-bottom: 30px;
+    }
+    .swipe-card {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(135deg, #FFD700, #FFEA00); /* Luminous gold default */
+        color: #1a001a; /* Dark text */
+        border-radius: 25px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5em;
+        font-weight: 700;
+        text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+        box-shadow: 0 5px 25px rgba(255, 215, 0, 0.4); /* Default glow */
+        cursor: grab;
+        user-select: none;
+        transition: transform 0.3s ease-out, box-shadow 0.3s ease-out;
+        padding: 20px;
+    }
+    .swipe-card.like-glow { box-shadow: 0 0 30px 5px #4CAF50; } /* Green glow for like */
+    .swipe-card.dislike-glow { box-shadow: 0 0 30px 5px #FF0000; } /* Red glow for dislike */
+
+    .swipe-info {
+        font-size: 0.8em;
+        color: rgba(26, 0, 26, 0.7);
+        margin-top: 10px;
+    }
+
+    #liked-movies {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 15px;
+        justify-content: center;
+        margin-top: 20px;
+        max-width: 800px;
+    }
+    .liked-card {
+        padding: 8px 18px;
+        background: #E8998D; /* Lighter accent color */
+        border-radius: 20px;
+        color: #1a001a;
+        font-weight: 600;
+        font-size: 0.9em;
+        text-align: center;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+    }
+    .liked-header {
+        width: 100%;
+        text-align: center;
+        font-family: 'Cinzel', serif;
+        font-size: 1.3em;
+        font-weight: 700;
+        margin-top: 15px;
+        margin-bottom: 10px;
+        color: #FFD700;
+        text-shadow: 0 0 8px rgba(255, 215, 0, 0.4);
+    }
+</style>
+</head>
+<body>
+
+<h1 id="page-title">Loading Cinematic Matches...</h1>
+<p class="current-context" id="context-display">Your <span style="color:#FFD700;">Happy</span> mood for <span style="color:#FFD700;">Relaxing</span></p>
+
+<div class="nav-buttons">
+    <button onclick="window.location.href='index.html'">Change Mood</button>
+    <button onclick="window.location.href='page5_dashboard.html'">Data Insights Dashboard</button>
+</div>
+
+<div id="movie-container"></div>
+<div id="liked-movies"></div>
+
+<script>
+    let movies = [];
+    let likedMovies = [];
+    const currentMood = localStorage.getItem('userMood') || 'Happy';
+    const currentActivity = localStorage.getItem('userActivity') || 'Relaxing';
+
+    document.getElementById('page-title').innerHTML = `Your <span style="color:#FFD700;">${currentMood}</span> Cinematic Matches`;
+    document.getElementById('context-display').innerHTML = `For a <span style="color:#FFD700;">${currentMood}</span> mood & <span style="color:#FFD700;">${currentActivity}</span> activity`;
+
+    
+    async function getRecommendations() {
+        // Call Flask API route for recommendations
+        const apiUrl = `/recommend?mood=${currentMood}&activity=${currentActivity}`;
+
+        let data = { recommended_movies: [] }; // Initialize data structure
+
+        try {
+            const response = await fetch(apiUrl);
+            if (!response.ok) {
+                // If the response is not 200 OK (e.g., 400 Bad Request or File Not Found)
+                throw new Error(`Server returned status: ${response.status}. Please ensure your Flask server is running and your 'movie_data_clean.csv' file is correctly loaded.`);
+            }
+            data = await response.json();
+        } catch (error) {
+            console.error("CRITICAL ERROR: Failed to fetch recommendations from Flask API.", error);
+            // Display a message to the user that the API is down or failed to find data
+            data = { recommended_movies: ["API Connection Failed. Check Python Console for errors (e.g., File Not Found or Pandas error)."] }; 
+        }
+        
+        movies = data.recommended_movies || [];
+        renderCards();
+    }
+
+    // --- SWIPE LOGIC ---
+    function handleSwipeEnd(card, movie, direction) {
+        card.style.transition = 'transform 0.5s ease-out, opacity 0.5s ease-out, box-shadow 0.5s ease-out';
+        
+        if (direction === 'like') {
+            card.style.transform = 'translateX(1000px) rotate(30deg)';
+            card.style.opacity = '0';
+            likedMovies.push(movie);
+            sendFeedback(movie, 'like');
+            showLikedMovies();
+            localStorage.setItem('lastLikedMovie', movie); 
+            // Redirect to detail page on first like for this demo
+            if (likedMovies.length === 1) { 
+                setTimeout(() => window.location.href = 'page4_detail.html', 500);
+            }
+        } else if (direction === 'dislike') {
+            card.style.transform = 'translateX(-1000px) rotate(-30deg)';
+            card.style.opacity = '0';
+            sendFeedback(movie, 'dislike');
+        } else {
+            card.style.transform = 'translateX(0px) rotate(0deg)';
+            card.classList.remove('like-glow', 'dislike-glow'); // Remove glows
+            card.style.boxShadow = '0 5px 25px rgba(255, 215, 0, 0.4)'; // Reset default glow
+            return;
+        }
+        card.addEventListener('transitionend', () => card.remove(), { once: true });
+    }
+
+    function renderCards() {
+        const container = document.getElementById('movie-container');
+        container.innerHTML = '';
+        if (movies.length === 0) {
+            container.innerHTML = '<div class="swipe-card" style="background:#440422; color:#EED2CC; box-shadow:none;"><p>No recommendations found.</p><p style="font-size:0.7em;">Try changing your mood or activity!</p></div>';
+            return;
+        }
+
+        [...movies].reverse().forEach((movie, index) => {
+            const card = document.createElement('div');
+            card.className = 'swipe-card';
+            card.innerHTML = `<div>${movie}</div><div class="swipe-info">Swipe right for more!</div>`;
+            card.style.zIndex = index;
+            container.appendChild(card);
+            
+            let startX, offsetX;
+            let isSwiping = false;
+
+            const startSwipe = (e) => {
+                startX = e.clientX || e.touches[0].clientX;
+                isSwiping = true;
+                card.style.transition = 'none';
+            };
+            const moveSwipe = (e) => {
+                if (!isSwiping) return;
+                const currentX = e.clientX || e.touches[0].clientX;
+                offsetX = currentX - startX;
+                card.style.transform = `translateX(${offsetX}px) rotate(${offsetX / 15}deg)`;
+                
+                card.classList.remove('like-glow', 'dislike-glow');
+                if (offsetX > 80) card.classList.add('like-glow');
+                else if (offsetX < -80) card.classList.add('dislike-glow');
+                else card.style.boxShadow = '0 5px 25px rgba(255, 215, 0, 0.4)'; // Reset
+            };
+            const endSwipe = () => {
+                if (!isSwiping) return;
+                isSwiping = false;
+                if (offsetX > 80) handleSwipeEnd(card, movie, 'like');
+                else if (offsetX < -80) handleSwipeEnd(card, movie, 'dislike');
+                else handleSwipeEnd(card, movie, 'reset');
+                startX = undefined; offsetX = undefined;
+            };
+
+            card.addEventListener('mousedown', startSwipe);
+            document.addEventListener('mousemove', moveSwipe);
+            document.addEventListener('mouseup', endSwipe);
+            card.addEventListener('touchstart', (e) => startSwipe(e));
+            document.addEventListener('touchmove', moveSwipe);
+            document.addEventListener('touchend', endSwipe);
+            card.addEventListener('mouseleave', () => { if (isSwiping) endSwipe(); });
+        });
+    }
+
+    function showLikedMovies() {
+        const likedDiv = document.getElementById('liked-movies');
+        likedDiv.innerHTML = '';
+        if (likedMovies.length > 0) {
+            const header = document.createElement('h2');
+            header.textContent = "Your Curated List";
+            header.className = "liked-header";
+            likedDiv.appendChild(header);
+        }
+        likedMovies.forEach(movie => {
+            const div = document.createElement('div');
+            div.className = 'liked-card';
+            div.textContent = movie;
+            likedDiv.appendChild(div);
+        });
+    }
+
+    async function sendFeedback(movie, type) {
+        console.log(`Attempting to send feedback: Movie "${movie}" was ${type}d.`);
+        
+        try {
+            const response = await fetch('/feedback', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ movie: movie, feedback: type, mood: currentMood, activity: currentActivity })
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                console.log("Feedback API response:", data.message);
+            } else {
+                console.error("Failed to send feedback. Server responded with status:", response.status);
+            }
+        } catch (error) {
+            console.error("Error connecting to feedback API:", error);
+        }
+    }
+
+    getRecommendations();
+</script>
+</body>
+</html>

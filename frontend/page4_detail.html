@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>4. Movie Detail</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+
+<style>
+    body {
+        font-family: 'Poppins', sans-serif;
+        background-color: #1a001a;
+        color: #FBF7F4;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        min-height: 100vh;
+        margin: 0;
+        padding: 40px 20px;
+        overflow: hidden;
+    }
+
+    .container {
+        max-width: 900px;
+        width: 100%;
+        padding: 30px;
+        background: rgba(30, 0, 30, 0.8);
+        border-radius: 20px;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.6);
+        position: relative;
+    }
+
+    .back-button {
+        position: absolute;
+        top: 20px;
+        left: 20px;
+        padding: 10px 15px;
+        font-size: 1em;
+        font-weight: 600;
+        border-radius: 25px;
+        border: 1px solid #FFD700;
+        background: none;
+        color: #FFD700;
+        cursor: pointer;
+        transition: 0.3s;
+        text-shadow: 0 0 8px rgba(255, 215, 0, 0.4);
+    }
+    .back-button:hover {
+        background: #FFD700;
+        color: #1a001a;
+        box-shadow: 0 0 20px rgba(255, 215, 0, 0.8);
+    }
+
+    .movie-header {
+        margin-bottom: 30px;
+        text-align: center;
+    }
+
+    h1 {
+        font-family: 'Cinzel', serif;
+        font-size: 2.8em;
+        color: #FFD700;
+        font-weight: 700;
+        margin-top: 0;
+        text-shadow: 0 0 15px rgba(255, 215, 0, 0.6);
+    }
+
+    .movie-meta {
+        font-size: 1em;
+        color: #EED2CC;
+        margin-bottom: 5px;
+    }
+
+    .synopsis-card, .justification-card {
+        margin-top: 25px;
+        padding: 25px;
+        border-radius: 15px;
+        background: rgba(50, 0, 50, 0.7);
+        box-shadow: 0 0 20px rgba(255, 215, 0, 0.2);
+    }
+
+    .synopsis-card h2, .justification-card h2 {
+        font-family: 'Cinzel', serif;
+        font-size: 1.6em;
+        color: #FFD700;
+        margin-bottom: 15px;
+        text-shadow: 0 0 8px rgba(255, 215, 0, 0.4);
+    }
+
+    .justification-card {
+        border-left: 5px solid #FFD700;
+        box-shadow: 0 0 20px rgba(255, 215, 0, 0.4);
+    }
+
+    .accent-highlight {
+        color: #FFD700;
+        font-weight: 600;
+    }
+</style>
+</head>
+
+<body>
+
+<div class="container">
+    <button class="back-button" onclick="window.location.href='page3_recommendations.html'">← Back</button>
+
+    <div class="movie-header">
+        <h1 id="movie-title">Loading...</h1>
+        <p id="movie-meta" class="movie-meta">N/A</p>
+        <p class="movie-meta">Director: <span id="movie-director">Loading...</span></p>
+        <p class="movie-meta">Starring: <span id="movie-stars">Loading...</span></p>
+    </div>
+
+    <div class="synopsis-card">
+        <h2>Synopsis</h2>
+        <p id="movie-synopsis">Fetching details...</p>
+    </div>
+
+    <div class="justification-card">
+        <h2>Contextual Match Report</h2>
+        <p id="match-report">
+            Analyzing match for your <span id="match-mood"></span> mood and <span id="match-activity"></span> activity...
+        </p>
+    </div>
+</div>
+
+<script>
+    const movieTitle = localStorage.getItem('lastLikedMovie');
+    const mood = localStorage.getItem('userMood') || 'unknown';
+    const activity = localStorage.getItem('userActivity') || 'unknown';
+
+    document.getElementById('match-mood').textContent = mood;
+    document.getElementById('match-activity').textContent = activity;
+    document.getElementById('movie-title').textContent = movieTitle || "Movie Not Selected";
+
+    async function fetchMovieDetails() {
+        if (!movieTitle) {
+            document.getElementById('movie-synopsis').textContent = "Please return and choose a movie.";
+            return;
+        }
+
+        const apiUrl = `/detail?title=${encodeURIComponent(movieTitle)}`;
+
+        try {
+            const response = await fetch(apiUrl);
+            const data = await response.json();
+
+            if (data.error) {
+                document.getElementById('movie-title').textContent = `Error: ${data.error}`;
+                document.getElementById('movie-synopsis').textContent = "No movie details found.";
+                return;
+            }
+
+            document.getElementById('movie-title').textContent = data.title || 'Unknown Title';
+            document.getElementById('movie-meta').textContent = `${data.genre || 'N/A'} | Rating: ${data.rating || 'N/A'}`;
+            document.getElementById('movie-director').textContent = data.Director || 'N/A';
+            document.getElementById('movie-stars').textContent = data.Starring || 'N/A';
+            document.getElementById('movie-synopsis').textContent = data.Synopsis || 'No synopsis available.';
+
+            document.getElementById('match-report').innerHTML = `
+                This movie is a strong thematic match for when you're feeling
+                <span class="accent-highlight">${mood}</span> and engaged in 
+                <span class="accent-highlight">${activity}</span>.
+            `;
+
+        } catch (error) {
+            document.getElementById('movie-title').textContent = "SERVER ERROR";
+            document.getElementById('movie-synopsis').textContent = "Could not load movie details.";
+        }
+    }
+
+    fetchMovieDetails();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>6. The End Credits</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<style>
+    body {
+        font-family: 'Poppins', sans-serif;
+        background-color: #1a001a; /* Very dark purple/black */
+        color: #FBF7F4;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        min-height: 100vh;
+        margin: 0;
+        padding: 60px 20px;
+        text-align: center;
+    }
+    h1 {
+        font-family: 'Cinzel', serif;
+        margin-bottom: 20px;
+        color: #FFD700; /* Gold */
+        font-weight: 700;
+        font-size: 3em;
+        text-shadow: 0 0 20px rgba(255, 215, 0, 0.8);
+    }
+    .info {
+        font-size: 1.2em;
+        color: #EED2CC;
+        margin-bottom: 50px;
+        max-width: 700px;
+        line-height: 1.6;
+        text-shadow: 0 0 5px rgba(238, 210, 204, 0.3);
+    }
+    .restart-button {
+        padding: 15px 35px;
+        font-size: 1.1em;
+        font-weight: 700;
+        border-radius: 35px;
+        border: 2px solid #FFD700;
+        background: none;
+        color: #FFD700;
+        cursor: pointer;
+        transition: all 0.4s ease-out;
+        text-shadow: 0 0 10px rgba(255, 215, 0, 0.6);
+        box-shadow: 0 0 20px rgba(255, 215, 0, 0.4);
+    }
+    .restart-button:hover {
+        background: #FFD700;
+        color: #1a001a;
+        transform: scale(1.05);
+        box-shadow: 0 0 30px rgba(255, 215, 0, 1);
+    }
+    .closing-line {
+        margin-top: 80px;
+        font-family: 'Cinzel', serif;
+        font-size: 1.5em;
+        color: #EED2CC;
+        text-shadow: 0 0 8px rgba(238, 210, 204, 0.4);
+    }
+</style>
+</head>
+<body>
+
+<h1>Curtain Call!</h1>
+<div class="info">
+    Thank you for journeying through the Cinematic Compass. Your valuable feedback fuels our intelligence, helping us refine the perfect match for every mood and moment.
+</div>
+
+<button class="restart-button" onclick="window.location.href='index.html'">Begin a New Cinematic Adventure</button>
+
+<p class="closing-line">The show goes on...</p>
+
+</body>
+</html>

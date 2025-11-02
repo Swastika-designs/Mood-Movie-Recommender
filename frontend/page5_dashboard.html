@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>5. Data Insights Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<style>
+    body {
+        font-family: 'Poppins', sans-serif;
+        background-color: #0d000d; /* Even darker, almost black, for dashboard gravitas */
+        color: #FBF7F4;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        min-height: 100vh;
+        margin: 0;
+        padding: 40px 20px;
+        overflow-x: hidden; /* Prevent horizontal scroll */
+    }
+    h1 {
+        font-family: 'Cinzel', serif;
+        margin-bottom: 20px;
+        color: #FFD700; /* Gold */
+        text-align: center;
+        font-weight: 700;
+        font-size: 2.8em;
+        text-shadow: 0 0 15px rgba(255, 215, 0, 0.6);
+    }
+    .info {
+        font-size: 1.1em;
+        color: #EED2CC;
+        margin-bottom: 40px;
+        text-shadow: 0 0 5px rgba(238, 210, 204, 0.3);
+    }
+    .back-button {
+        padding: 12px 25px;
+        font-size: 1em;
+        font-weight: 600;
+        border-radius: 30px;
+        border: 1px solid #FFD700;
+        background: none;
+        color: #FFD700;
+        cursor: pointer;
+        transition: all 0.3s;
+        text-shadow: 0 0 8px rgba(255, 215, 0, 0.4);
+        margin-bottom: 40px;
+    }
+    .back-button:hover {
+        background: #FFD700;
+        color: #0d000d;
+        box-shadow: 0 0 20px rgba(255, 215, 0, 0.8);
+    }
+
+    .data-container {
+        max-width: 1200px; /* Wider for more dashboard content */
+        width: 100%;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); /* Responsive grid */
+        gap: 30px;
+        margin-top: 20px;
+    }
+    .data-card {
+        background: rgba(30, 0, 30, 0.7); /* Slightly transparent dark background */
+        padding: 30px;
+        border-radius: 20px;
+        box-shadow: 0 5px 30px rgba(0,0,0,0.7);
+        border: 1px solid rgba(255, 215, 0, 0.1); /* Subtle gold border */
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+    .card-title {
+        font-family: 'Cinzel', serif;
+        font-size: 1.8em;
+        color: #FFD700; /* Gold */
+        font-weight: 700;
+        margin-bottom: 15px;
+        border-bottom: 1px solid rgba(255, 215, 0, 0.3);
+        padding-bottom: 10px;
+        text-shadow: 0 0 10px rgba(255, 215, 0, 0.4);
+    }
+    .data-list li {
+        margin-bottom: 8px;
+        font-size: 1em;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .data-list span {
+        font-weight: 600;
+        color: #EED2CC;
+    }
+    .highlight-value {
+        color: #FFEA00; /* Brighter yellow for values */
+        font-weight: 700;
+        text-shadow: 0 0 5px rgba(255, 234, 0, 0.5);
+    }
+    .chart-placeholder {
+        height: 180px;
+        background: rgba(80, 0, 80, 0.5);
+        border-radius: 10px;
+        margin-top: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.9em;
+        color: rgba(255, 255, 255, 0.6);
+        border: 1px dashed rgba(255, 215, 0, 0.3);
+    }
+    .insight-text {
+        font-size: 0.9em;
+        color: #EED2CC;
+        margin-top: 15px;
+        line-height: 1.5;
+    }
+    .strong-highlight {
+        color: #FFEA00;
+        font-weight: 700;
+        text-shadow: 0 0 8px rgba(255, 234, 0, 0.6);
+    }
+</style>
+</head>
+<body>
+
+<h1>The Mind Behind the Magic: Data Insights</h1>
+<div class="info">Unveiling the intelligence that crafts your cinematic journey.</div>
+
+<button class="back-button" onclick="window.location.href='page3_recommendations.html'">← Back to Recommendations</button>
+
+<div class="data-container">
+    
+    <div class="data-card">
+        <h3 class="card-title">Campus Pulse: Trending Now</h3>
+        <ul class="data-list">
+            <li><span>The Social Network</span> <span class="highlight-value">22%</span></li>
+            <li><span>Everybody Wants Some!!</span> <span class="highlight-value">18%</span></li>
+            <li><span>The Internship</span> <span class="highlight-value">15%</span></li>
+        </ul>
+        <p class="insight-text">
+            <span class="strong-highlight">Insight:</span> **Comedy films** see a <span class="strong-highlight">+35%</span> surge in campus viewership on <span class="strong-highlight">Sunday afternoons</span>.
+        </p>
+    </div>
+
+    <div class="data-card">
+        <h3 class="card-title">Your Cinematic Tribe: User Cluster</h3>
+        <div class="chart-placeholder">
+            [Interactive Cluster Map here]
+        </div>
+        <p class="insight-text" id="cluster-info">
+            Loading your cluster profile...
+        </p>
+    </div>
+
+    <div class="data-card">
+        <h3 class="card-title">Temporal Tides: Contextual Impact</h3>
+        <p class="strong-highlight" style="font-size: 1.8em; margin-bottom: 10px;">Friday Night</p>
+        <p class="insight-text">
+            <span class="strong-highlight">Current Context:</span> <span id="current-context">Loading...</span><br><br>
+            <span class="strong-highlight">Global Trend:</span> <span class="strong-highlight">Thriller & Horror</span> viewership jumps <span class="strong-highlight">+35%</span> after 7 PM.
+        </p>
+    </div>
+
+</div>
+
+<script>
+    const mood = localStorage.getItem('userMood') || 'unknown';
+    const activity = localStorage.getItem('userActivity') || 'unknown';
+
+    document.getElementById('current-context').innerHTML = `${mood} Mood & ${activity} Activity`;
+    document.getElementById('cluster-info').innerHTML = `
+        You are aligned with the <span class="strong-highlight">"Reflective Film Buffs"</span> cluster. 
+        This group frequently seeks <span class="strong-highlight">thought-provoking dramas</span> for ${mood} moods.
+    `;
+</script>
+</body>
+</html>

@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>2. Activity Selection</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<style>
+    body {
+        font-family: 'Poppins', sans-serif;
+        background-color: #1a001a; /* Very dark purple/black, like a theater */
+        color: #FBF7F4;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        min-height: 100vh;
+        margin: 0;
+        padding: 50px 20px;
+        overflow: hidden;
+    }
+    h1 {
+        font-family: 'Cinzel', serif;
+        margin-bottom: 50px;
+        color: #FFD700; /* Gold */
+        text-align: center;
+        font-weight: 700;
+        font-size: 2.5em;
+        text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+    }
+    .current-selection {
+        font-size: 1.2em;
+        color: #EED2CC; /* Lighter accent */
+        margin-bottom: 30px;
+        text-shadow: 0 0 5px rgba(238, 210, 204, 0.3);
+    }
+    .activity-selection-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 200px);
+        gap: 30px;
+        margin-top: 30px;
+    }
+    .activity-button {
+        width: 200px;
+        height: 200px;
+        border-radius: 50%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        font-family: 'Poppins', sans-serif;
+        font-size: 1.3em;
+        font-weight: 600;
+        color: #FBF7F4; /* Light text for dark buttons */
+        background: rgba(50, 0, 50, 0.7); /* Dark semi-transparent */
+        border: 2px solid #FFD700; /* Gold border */
+        cursor: pointer;
+        transition: all 0.3s ease-out;
+        box-shadow: 0 0 20px rgba(255, 215, 0, 0.2);
+    }
+    .activity-button:hover {
+        transform: scale(1.08) translateY(-5px);
+        background: rgba(80, 0, 80, 0.9);
+        box-shadow: 0 0 40px rgba(255, 215, 0, 0.8);
+    }
+    .activity-button .icon {
+        font-size: 4em;
+        margin-bottom: 8px;
+        line-height: 1;
+    }
+    .back-button {
+        margin-top: 60px;
+        padding: 12px 25px;
+        font-size: 1em;
+        font-weight: 600;
+        border-radius: 30px;
+        border: 1px solid #FFD700;
+        background: none;
+        color: #FFD700;
+        cursor: pointer;
+        transition: all 0.3s;
+        text-shadow: 0 0 8px rgba(255, 215, 0, 0.4);
+    }
+    .back-button:hover {
+        background: #FFD700;
+        color: #1a001a;
+        box-shadow: 0 0 20px rgba(255, 215, 0, 0.8);
+    }
+</style>
+</head>
+<body>
+
+<p class="current-selection">Your Chosen Mood: <span id="selected-mood">Mood Loading...</span></p>
+<h1>What cinematic activity awaits?</h1>
+
+<div class="activity-selection-grid">
+    <button class="activity-button" onclick="selectActivityAndProceed('Relaxing')">
+        <span class="icon">🛋️</span>
+        Relaxing
+    </button>
+    
+    <button class="activity-button" onclick="selectActivityAndProceed('Studying')">
+        <span class="icon">📚</span>
+        Studying
+    </button>
+    
+    <button class="activity-button" onclick="selectActivityAndProceed('Working Out')">
+        <span class="icon">💪</span>
+        Working Out
+    </button>
+    
+    <button class="activity-button" onclick="selectActivityAndProceed('Partying')">
+        <span class="icon">🥳</span>
+        Partying
+    </button>
+</div>
+
+<button class="back-button" onclick="window.location.href='index.html'">← Change Mood</button>
+
+<script>
+    const mood = localStorage.getItem('userMood');
+    document.getElementById('selected-mood').textContent = mood ? mood : 'Not Selected';
+
+    function selectActivityAndProceed(activity) {
+        localStorage.setItem('userActivity', activity);
+        window.location.href = 'page3_recommendations.html';
+    }
+</script>
+</body>
+</html>
