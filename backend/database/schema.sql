@@ -1,5 +1,6 @@
 -- ===============================================
--- Database Schema: Mood-Based Movie Recommender (Modernized)
+-- Database Schema: Mood-Based Movie Recommender
+-- FIX: Added Director, Starring, Synopsis to Movies table
 -- ===============================================
 
 -- 1️⃣ Users Table
@@ -10,12 +11,16 @@ CREATE TABLE IF NOT EXISTS Users (
     occupation TEXT
 );
 
--- 2️⃣ Movies Table (modernized with optional genre/year)
+-- 2️⃣ Movies Table (FIXED: Includes rich metadata columns)
 CREATE TABLE IF NOT EXISTS Movies (
     movie_id INTEGER PRIMARY KEY,
     title TEXT NOT NULL,
     genre TEXT DEFAULT NULL,
-    release_year INTEGER DEFAULT NULL
+    release_year INTEGER DEFAULT NULL,
+    -- ADDED COLUMNS TO POWER DETAIL PAGE LOOKUP
+    Director TEXT DEFAULT NULL,
+    Starring TEXT DEFAULT NULL,
+    Synopsis TEXT DEFAULT NULL
 );
 
 -- 3️⃣ Mood Table
